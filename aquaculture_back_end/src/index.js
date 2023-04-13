@@ -49,7 +49,7 @@ function notifyMessage(title, msg, type) {
     },
     body: JSON.stringify({
       time: new Date().toLocaleString(),
-      message: msg,
+      content: msg,
       type: type,
       title: title
     }),
@@ -91,9 +91,11 @@ mqttclient.on("message", (topic, message) => {
   } else if (feed == "oxygenpump") {
     let msg = `Máy bơm oxy vừa được thay đổi giá trị thành:  ${data}`;
     notifyMessage('Điều khiển máy sục Oxy', msg, 0);
+    console.log(msg);
   } else if (feed == "pump") {
     let msg = `Bơm nước vừa được thay đổi giá trị thành:  ${data}`;
     notifyMessage('Điều khiển máy bơm nước', msg, 0);
+    console.log(msg);
   }
 });
 app.use(
