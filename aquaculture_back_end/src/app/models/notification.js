@@ -5,7 +5,7 @@ const Notification = new Schema(
   {
     title: { type: String },
     time: { type: Date },
-    tag: { type: String },
+    type: { type: String },
     content: { type: String },
   },
   {

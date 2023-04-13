@@ -41,7 +41,7 @@ function saveDeviceHistory(name, data_str, data) {
   });
 }
 
-function notifyMessage(msg) {
+function notifyMessage(title, msg, type) {
   fetch("http://localhost:4001/notification", {
     method: "POST",
     headers: {
@@ -50,6 +50,8 @@ function notifyMessage(msg) {
     body: JSON.stringify({
       time: new Date().toLocaleString(),
       message: msg,
+      type: type,
+      title: title
     }),
   });
 }
@@ -69,7 +71,7 @@ async function getThreshold() {
     } else if (item.type == "lux") {
       light_min = item.min;
       light_max = item.max;
-    } 
+    }
   });
 }
 
@@ -77,19 +79,22 @@ getThreshold();
 mqttclient.on("message", (topic, message) => {
   const feed = topic.split("/")[2];
   let data = message.toString();
-    if (feed == "temperature" && (parseFloat(data) < temp_min || parseFloat(data) > temp_max)) {
-      let msg = `Nhiệt độ vượt quá khoảng cho phép từ ${temp_min} đến ${temp_max}, giá trị vượt ngưỡng là ${message}`;
-      console.log(msg)
-      // notifyMessage(msg);
-    } else if (feed == "humidity" && (parseFloat(data) < hum_min || parseFloat(data) > hum_max)) {
-      let msg = `Độ ẩm vượt quá khoảng cho phép từ ${hum_min} đến ${hum_max}, giá trị vượt ngưỡng là ${message}`;
-      console.log(msg)
-      // notifyMessage(msg);
-    } else if (feed == "lux" &&(parseFloat(data)< light_min || parseFloat(data) > light_max)) {
-      let msg = `Độ sáng vượt quá khoảng cho phép từ ${light_min} đến ${light_max}, giá trị vượt ngưỡng là ${message}`;
-      console.log(msg)
-      // notifyMessage(msg);
-    }
+  if (feed == "temperature" && (parseFloat(data) < temp_min || parseFloat(data) > temp_max)) {
+    let msg = `Nhiệt độ vượt quá khoảng cho phép từ ${temp_min} đến ${temp_max}, giá trị vượt ngưỡng là ${message}`;
+    notifyMessage('Nhiệt độ quá ngưỡng', msg, 1);
+  } else if (feed == "humidity" && (parseFloat(data) < hum_min || parseFloat(data) > hum_max)) {
+    let msg = `Độ ẩm vượt quá khoảng cho phép từ ${hum_min} đến ${hum_max}, giá trị vượt ngưỡng là ${message}`;
+    notifyMessage('Độ ẩm quá ngưỡng', msg, 1);
+  } else if (feed == "lux" && (parseFloat(data) < light_min || parseFloat(data) > light_max)) {
+    let msg = `Ánh sáng vượt quá khoảng cho phép từ ${light_min} đến ${light_max}, giá trị vượt ngưỡng là ${message}`;
+    notifyMessage('Ánh sáng quá ngưỡng', msg, 1);
+  } else if (feed == "oxygenpump") {
+    let msg = `Máy bơm oxy vừa được thay đổi giá trị thành:  ${data}`;
+    notifyMessage('Điều khiển máy sục Oxy', msg, 0);
+  } else if (feed == "pump") {
+    let msg = `Bơm nước vừa được thay đổi giá trị thành:  ${data}`;
+    notifyMessage('Điều khiển máy bơm nước', msg, 0);
+  }
 });
 app.use(
   session({

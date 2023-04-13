@@ -10,10 +10,10 @@ class MQTTClient {
     this.defineField();
     this.client.on("connect", () => {
       this.feeds_key.forEach((feed) => {
-        this.client.subscribe(`zyrene/feeds/${feed}`);
+        this.client.subscribe(`ThinhNguyen1801/feeds/${feed}`);
       });
     });
-    
+
     MQTTClient.#initialize = false;
   }
 
@@ -29,14 +29,16 @@ class MQTTClient {
     this.feeds = [
       "Temperature",
       "LuX",
-      "Humidity"
+      "Humidity",
+      "Pump",
+      "OxygenPump"
     ];
-    this.feeds_key = ["temperature", "lux", "humidity"];
+    this.feeds_key = ["temperature", "lux", "humidity", "oxygenpump", "fan"];
     this.moment = require("moment");
     this.mqtt = require("mqtt");
-    this.username = "zyrene";
+    this.username = "ThinhNguyen1801";
     this.port = 1883;
-    this.key = "aio_boeq6547HgdG5JhXf7ExO2X4ocUH";
+    this.key = "aio_VPQb11qVCR4GHRwVmz496Sy7lsqk";
     this.url = `mqtts://${this.username}:${this.key}@io.adafruit.com`;
     this.client = this.mqtt.connect(this.url, this.port);
   }

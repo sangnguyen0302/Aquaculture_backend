@@ -10,52 +10,41 @@ const schedule = require("node-schedule");
 const Notification = require("../models/notification");
 const feeds = ["humidity", "lux", "temperature"];
 
-async function getDaydata(day, feed) {
-  const url = `https://io.adafruit.com/api/v2/zyrene/feeds/${feed}/data?start_time=${day}T00:00Z&end_time=${day}T23:59:59Z`;
-  const response = await fetch(url);
-  const data = response.json();
-  return data;
-}
-console.log( getDaydata('2023-03-16','temperature').then(data => console.log(data)))
-let tmp = {temperature: 0, humidity:0, lux: 0};
-Promise.all(feeds.map( async i=>{
- return getDaydata('2023-03-16',i)
-//  .then(data =>{tmp[i] = data.reduce((a, b) => {return a + parseFloat(b.value)}, 0) / data.length;console.log(tmp)});
-})).then(list=>console.log(list))
-
+// getPumpDevice().then(data => console.log(data));
 // create rule at 23:59:59
-const rule = new schedule.RecurrenceRule();
-rule.hour = 9;
-rule.minute = 33;
-rule.second = 00;
-//run when time at 11:59:59
-schedule.scheduleJob(rule, async function () {
-  const currentDay = moment().format("YYYY-MM-DD");
-  const weekDay = moment(currentDay).format("dddd");
-  const recentWeekRC = await WeekRecord.findOne()
-    .sort("-created_at")
-    .populate("daydatas");
-  let dayRc = new DayRecord({
-    date: currentDay,
-    weekday: weekDay,
-    temperature: 0,
-    humidity: 0,
-    lux: 0,
-  });
-  for (let feed of feeds) {
-    const feedData = await getDaydata(currentDay, feed);
-    if (feedData.length > 0) {
-      var value =
-        feedData.reduce((a, b) => a + parseInt(b.value), 0) / feedData.length;
-      if (value != NaN) dayRc[feed] = value;
-    }
-  }
-  
-  dayRc.save().catch((error) => console.log(error));
-
-});
+// const rule = new schedule.RecurrenceRule();
+// rule.hour = 9;
+// rule.minute = 33;
+// rule.second = 00;
+// const currentDay = moment().format("YYYY-MM-DD");
+// const weekDay = moment(currentDay).format("dddd");
+// //run when time at 11:59:59
+// schedule.scheduleJob(rule, async function () {
+//   const currentDay = moment().format("YYYY-MM-DD");
+//   const weekDay = moment(currentDay).format("dddd");
+//   const recentWeekRC = await WeekRecord.findOne()
+//     .sort("-created_at")
+//     .populate("daydatas");
+//   let dayRc = new DayRecord({
+//     date: currentDay,
+//     weekday: weekDay,
+//     temperature: 0,
+//     humidity: 0,
+//     lux: 0,
+//   });
+//   Promise.all(
+//     feeds.map(i => {
+//       return getDaydata('2023-03-16', i)
+//       //  .then(data =>{tmp[i] = data.reduce((a, b) => {return a + parseFloat(b.value)}, 0) / data.length;console.log(tmp)});
+//     })).then(list => {
+//       list.map(data => dayRc[data[0].feed_key] = data.reduce((a, b) => { return a + parseFloat(b.value) }, 0) / data.length);
+//       dayRc.save().catch((error) => console.log(error));
+//     });
+// });
 
 class AppController {
+
+
   createUser(req, res, next) {
     let newUser = new User({
       username: req.body.username,
@@ -74,14 +63,13 @@ class AppController {
       .then((user) => {
         if (user) {
           if (user.password === req.body.password) {
-            req.session.username = 
-            user.username;
+            req.session.username =
+              user.username;
             res.json(user);
           } else {
             res.json({ err: "Wrong password" });
           }
         } else {
-          console.log("lol");
           res.json("Invalid user");
         }
       })
@@ -118,7 +106,7 @@ class AppController {
     Threshold.findOneAndUpdate(
       { type: type },
       { $set: { min: min, max: max } },
-      { new: true, upsert : true },
+      { new: true, upsert: true },
       (err, doc) => {
         if (err) {
           res.json(err);
@@ -145,6 +133,7 @@ class AppController {
       title: req.body.title,
       time: req.body.time,
       content: req.body.content,
+      type: req.body.type
     });
     newNotification
       .save()
@@ -209,7 +198,7 @@ class AppController {
       .catch((err) => res.json({ err: err }));
   }
 
-  createDayRecord(req, res, next) {}
+  createDayRecord(req, res, next) { }
 
   async getDayRecord(req, res, next) {
     const currentDay = "2022-04-01";
