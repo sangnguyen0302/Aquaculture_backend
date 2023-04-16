@@ -33,7 +33,7 @@ class MQTTClient {
       "Pump",
       "OxygenPump"
     ];
-    this.feeds_key = ["temperature", "lux", "humidity", "oxygenpump", "fan"];
+    this.feeds_key = ["temperature", "lux", "humidity", "oxygenpump", "pump"];
     this.moment = require("moment");
     this.mqtt = require("mqtt");
     this.username = "ThinhNguyen1801";
